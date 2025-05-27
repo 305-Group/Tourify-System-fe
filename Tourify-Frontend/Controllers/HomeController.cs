@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Tourify_Frontend.Models;
 
@@ -30,3 +30,6 @@ namespace Tourify_Frontend.Controllers
         }
     }
 }
+
+
+// này dùng cho trang landing page (mấy bạn có thể tự tạo thêm controller trong quá trinh làm nha)

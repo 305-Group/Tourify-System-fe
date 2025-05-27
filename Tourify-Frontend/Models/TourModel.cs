@@ -1,6 +1,6 @@
 ﻿namespace Tourify_Frontend.Models
 {
-    public class Tour
+    public class TourModel
     {
     }
 }

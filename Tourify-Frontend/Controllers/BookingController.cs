@@ -10,3 +10,4 @@ namespace Tourify_Frontend.Controllers
         }
     }
 }
+// cái này để dành cho booking và xem chi tiết booking(mấy bạn có thể tự tạo thêm controller trong quá trinh làm nha)

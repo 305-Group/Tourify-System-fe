@@ -1,6 +1,6 @@
 ﻿namespace Tourify_Frontend.Models
 {
-    public class User
+    public class UserModel
     {
     }
 }
