@@ -83,6 +83,41 @@ public class HomeController : Controller
         return View(); // Hiển thị lại trang ForgotPassword với thông báo lỗi
     }
 
+    // Action để hiển thị trang đăng ký (GET request)
+    [HttpGet]
+    [Route("/register")] // <-- Định tuyến URL gọn hơn
+    public IActionResult Register()
+    {
+        return View(); // Trả về View có tên Register (Register.cshtml)
+    }
+
+    // Action để xử lý dữ liệu POST từ form đăng ký
+    [HttpPost]
+    [Route("/register")] // <-- Định tuyến URL gọn hơn
+    public IActionResult Register(string name, string email, string password)
+    {
+        // Đây là nơi bạn sẽ thêm logic đăng ký người dùng mới.
+        // Ví dụ:
+        if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password))
+        {
+            // Trong thực tế, bạn sẽ:
+            // 1. Kiểm tra xem email đã tồn tại chưa.
+            // 2. Hash mật khẩu trước khi lưu.
+            // 3. Lưu thông tin người dùng vào cơ sở dữ liệu.
+            // 4. Có thể gửi email xác nhận tài khoản.
+
+            _logger.LogInformation($"Đăng ký tài khoản mới: Tên={name}, Email={email}");
+
+            // Giả định đăng ký thành công và chuyển hướng đến trang đăng nhập
+            // hoặc trang thông báo đăng ký thành công.
+            ViewData["SuccessMessage"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
+            return RedirectToAction("Login"); // Chuyển hướng về trang đăng nhập
+        }
+        // Nếu dữ liệu không hợp lệ
+        ViewData["ErrorMessage"] = "Vui lòng điền đầy đủ và hợp lệ các thông tin.";
+        return View(); // Hiển thị lại trang Register với thông báo lỗi
+    }
+
     public IActionResult Privacy()
     {
         return View();
