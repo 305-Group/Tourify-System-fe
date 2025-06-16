@@ -8,6 +8,11 @@ namespace Tourify_Frontend.Controllers
         {
             return View();
         }
+        
+        public IActionResult SearchResult()
+        {
+            return View();
+        }
     }
 }
 
