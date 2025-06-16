@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
+using System.Linq;
+using static Tourify_Frontend.Models.UserModel;
 
 namespace Tourify_Frontend.Controllers
 {
@@ -7,7 +11,15 @@ namespace Tourify_Frontend.Controllers
 
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
-        private readonly HttpClient _httpclient;
+        private readonly HttpClient _httpClient;
+
+        public AccountController(ILogger<HomeController> logger, IConfiguration configuration, HttpClient httpClient)
+        {
+            _logger = logger;
+            _configuration = configuration;
+            _httpClient = httpClient;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -18,28 +30,74 @@ namespace Tourify_Frontend.Controllers
         [Route("/login")]
         public IActionResult Login()
         {
-            return View(); // Trả về View có tên Login (Login.cshtml)
+            // Kiểm tra nếu đã có token thì chuyển hướng đến trang Tour
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index", "Tour");
+            }
+            return View();
         }
 
         // Action để xử lý dữ liệu POST từ form đăng nhập
         [HttpPost]
         [Route("/login")]
-        // Đã thay đổi tham số đầu vào từ 'email' thành 'username'
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(string email, string password)
         {
-            // Đây là nơi bạn sẽ thêm logic xác thực người dùng bằng username
-            // Ví dụ (chỉ để minh họa, trong thực tế bạn sẽ dùng database hoặc Identity):
-            if (username == "admin" && password == "password123") // Thay đổi điều kiện xác thực
+            try
             {
-                // Đăng nhập thành công, chuyển hướng đến trang chủ
-                return RedirectToAction("Index", "Home");
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
+                    return View();
+                }
+
+                var baseUrl = _configuration["ApiSettings:BaseUrl"];
+                var loginUrl = $"{baseUrl}/User/login";
+
+                var loginData = new
+                {
+                    username = email,
+                    password = password
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(loginData),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync(loginUrl, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation($"Login API Response: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent);
+                    _logger.LogInformation($"Deserialized token: {loginResponse?.token}");
+                    if (!string.IsNullOrEmpty(loginResponse?.token))
+                    {
+                        // Lưu token vào cookie
+                        Response.Cookies.Append("AuthToken", loginResponse.token, new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTime.Now.AddDays(7)
+                        });
+
+                        return RedirectToAction("Index", "Tour");
+                    }
+                }
+
+                ViewData["ErrorMessage"] = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                return View();
             }
-            else
+            catch (Exception ex)
             {
-                // Đăng nhập thất bại, có thể thêm lỗi vào ModelState
-                // Hoặc truyền thông báo lỗi qua ViewData/ViewBag
-                ViewData["ErrorMessage"] = "Tên người dùng hoặc mật khẩu không đúng."; // Cập nhật thông báo lỗi
-                return View(); // Hiển thị lại trang Login với thông báo lỗi
+                _logger.LogError($"Login error: {ex.Message}");
+                ViewData["ErrorMessage"] = "Có lỗi xảy ra. Vui lòng thử lại sau.";
+                return View();
             }
         }
 
@@ -89,29 +147,181 @@ namespace Tourify_Frontend.Controllers
         // Action để xử lý dữ liệu POST từ form đăng ký
         [HttpPost]
         [Route("/register")] // <-- Định tuyến URL gọn hơn
-        public IActionResult Register(string name, string email, string password)
+        public async Task<IActionResult> Register(string name, string email, string password)
         {
-            // Đây là nơi bạn sẽ thêm logic đăng ký người dùng mới.
-            // Ví dụ:
-            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password))
+            try
             {
-                // Trong thực tế, bạn sẽ:
-                // 1. Kiểm tra xem email đã tồn tại chưa.
-                // 2. Hash mật khẩu trước khi lưu.
-                // 3. Lưu thông tin người dùng vào cơ sở dữ liệu.
-                // 4. Có thể gửi email xác nhận tài khoản.
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng điền đầy đủ thông tin.";
+                    return View();
+                }
 
-                _logger.LogInformation($"Đăng ký tài khoản mới: Tên={name}, Email={email}");
+                var baseUrl = _configuration["ApiSettings:BaseUrl"];
 
-                // Giả định đăng ký thành công và chuyển hướng đến trang đăng nhập
-                // hoặc trang thông báo đăng ký thành công.
-                ViewData["SuccessMessage"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
-                return RedirectToAction("Login"); // Chuyển hướng về trang đăng nhập
+                // Check if email already exists
+                var checkEmailUrl = $"{baseUrl}/User";
+                var checkEmailResponse = await _httpClient.GetAsync(checkEmailUrl);
+
+                if (checkEmailResponse.IsSuccessStatusCode)
+                {
+                    var usersJson = await checkEmailResponse.Content.ReadAsStringAsync();
+                    
+                    try
+                    {
+                        // Parse JSON và lấy danh sách email
+                        var jsonDocument = JsonDocument.Parse(usersJson);
+                        var emailList = new List<string>();
+                        
+                        foreach (var user in jsonDocument.RootElement.EnumerateArray())
+                        {
+                            if (user.TryGetProperty("email", out var emailElement) && 
+                                emailElement.ValueKind != JsonValueKind.Null && 
+                                !string.IsNullOrEmpty(emailElement.GetString()))
+                            {
+                                emailList.Add(emailElement.GetString().ToLower());
+                            }
+                        }
+
+                        // Kiểm tra email nhập vào có trong mảng không
+                        if (emailList.Contains(email.ToLower()))
+                        {
+                            ViewData["ErrorMessage"] = "Email này đã được sử dụng. Vui lòng sử dụng email khác.";
+                            return View();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error processing user data: {ex.Message}");
+                    }
+                }
+
+                var registerUrl = $"{baseUrl}/auth/register";
+
+                var userData = new
+                {   
+                    email = email,
+                    password = password,
+                    username = name
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(userData),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _httpClient.PostAsync(registerUrl, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Lưu email vào TempData để sử dụng ở bước verify OTP
+                    TempData["VerifyEmail"] = email;
+                    // Chuyển hướng đến trang verify OTP
+                    return RedirectToAction("VerifyOTP");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Registration failed: {errorContent}");
+                    ViewData["ErrorMessage"] = "Đăng ký thất bại. Vui lòng thử lại sau.";
+                    return View();
+                }
             }
-            // Nếu dữ liệu không hợp lệ
-            ViewData["ErrorMessage"] = "Vui lòng điền đầy đủ và hợp lệ các thông tin.";
-            return View(); // Hiển thị lại trang Register với thông báo lỗi
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error during registration: {ex.Message}");
+                ViewData["ErrorMessage"] = "Có lỗi xảy ra. Vui lòng thử lại sau.";
+                return View();
+            }
         }
+
+        // Action để hiển thị trang verify OTP
+        [HttpGet]
+        [Route("/verify-otp")]
+        public IActionResult VerifyOTP()
+        {
+            if (TempData["VerifyEmail"] == null)
+            {
+                return RedirectToAction("Register");
+            }
+            ViewData["Email"] = TempData["VerifyEmail"];
+            return View();
+        }
+
+        // Action để xử lý verify OTP
+        [HttpPost]
+        [Route("/verify-otp")]
+        public async Task<IActionResult> VerifyOTP(string email, string otp)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(otp))
+                {
+                    ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
+                    return View();
+                }
+
+                var baseUrl = _configuration["ApiSettings:BaseUrl"];
+                var verifyUrl = $"{baseUrl}/auth/verify-otp";
+
+                // Tạo request body chính xác theo API
+                var verifyData = new
+                {
+                    email = email.ToLower(),  // Chuyển về chữ thường
+                    otp = otp.Trim()         // Loại bỏ khoảng trắng
+                };
+
+                // Tạo request với headers đầy đủ
+                var request = new HttpRequestMessage(HttpMethod.Post, verifyUrl);
+                request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                
+                var jsonContent = JsonSerializer.Serialize(verifyData);
+                request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.SendAsync(request);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Xác thực OTP thành công! Vui lòng đăng nhập.";
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    string errorMessage = "Mã OTP không đúng. Vui lòng thử lại.";
+                    if (responseContent.Contains("User not found"))
+                    {
+                        errorMessage = "Không tìm thấy thông tin người dùng. Vui lòng đăng ký lại.";
+                    }
+                    else if (responseContent.Contains("OTP expired"))
+                    {
+                        errorMessage = "Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.";
+                    }
+
+                    ViewData["ErrorMessage"] = errorMessage;
+                    ViewData["Email"] = email;
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = "Có lỗi xảy ra. Vui lòng thử lại sau.";
+                ViewData["Email"] = email;
+                return View();
+            }
+        }
+
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AuthToken");
+            return RedirectToAction("Login");
+        }
+    }
+
+    public class LoginResponse
+    {
+        public string token { get; set; }
     }
 }
 // cái này dùng cho những cái xử lý dành cho auth (mấy bạn có thể tự tạo thêm controller trong quá trinh làm nha)
