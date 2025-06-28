@@ -1,0 +1,13 @@
+﻿@* Views/Dashboard/Index.cshtml *@
+@ {
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+@* Vì toàn bộ nội dung page do JS quản lý, chỉ cần gọi loadPage *@
+@section Scripts {
+  <script>
+    // khởi tạo dashboard khi view được render
+    loadPage("dashboard");
+  </script>
+}
