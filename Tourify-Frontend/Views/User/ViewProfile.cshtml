@@ -1,3 +1,5 @@
+@model dynamic
+
 @{
     Layout = null;
 }
@@ -57,7 +59,7 @@
                             <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
                                 alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
                             <span>Hello,
-                                <span>User</span></span>
+                                <span>@Model.username</span></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li>
@@ -130,7 +132,7 @@
 
         <div class="profile-pic-container">
             <img id="profile-pic"
-                src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=600"
+                src="@Model.avatarLink"
                 alt="Profile Picture" class="profile-pic"
                 onerror="this.onerror=null; this.src='../images/avatar_default.jpg';" onclick="showFullAvatar()" />
             <div id="edit-icon" class="edit-icon" onclick="showAvatarModal()">
@@ -230,7 +232,7 @@
                     <div class="account-field d-flex justify-content-between mb-3" id="field-firstName">
                         <div>
                             <p class="field-label">First Name</p>
-                            <p class="field-value" id="firstName-display">John</p>
+                            <p class="field-value" id="firstName-display">@Model.firstName</p>
                             <input type="text" class="form-control d-none" id="firstName-input" value="John" />
                         </div>
                         <div class="d-flex gap-2">
@@ -251,7 +253,7 @@
                     <div class="account-field d-flex justify-content-between mb-3" id="field-lastName">
                         <div>
                             <p class="field-label">Last Name</p>
-                            <p class="field-value" id="lastName-display">Doe</p>
+                            <p class="field-value" id="lastName-display">@Model.lastName</p>
                             <input type="text" class="form-control d-none" id="lastName-input" value="Doe" />
                         </div>
                         <div class="d-flex gap-2">
@@ -273,7 +275,7 @@
                         <div>
                             <p class="field-label">Email</p>
                             <p class="field-value" id="email-display">
-                                john.doe@gmail.com
+                                @Model.email
                             </p>
                             <input type="email" class="form-control d-none" id="email-input"
                                 value="john.doe@gmail.com" />
@@ -296,7 +298,7 @@
                     <div class="account-field d-flex justify-content-between mb-3" id="field-password">
                         <div>
                             <p class="field-label">Password</p>
-                            <p class="field-value" id="password-display">************</p>
+                            <p class="field-value" id="password-display">?????</p>
                             <input type="password" class="form-control d-none" id="password-input" value=""
                                 placeholder="Enter new password" />
                         </div>
@@ -318,7 +320,7 @@
                     <div class="account-field d-flex justify-content-between mb-3" id="field-phone">
                         <div>
                             <p class="field-label">Phone number</p>
-                            <p class="field-value" id="phone-display">+1 000-000-0000</p>
+                            <p class="field-value" id="phone-display">@Model.phone</p>
                             <input type="text" class="form-control d-none" id="phone-input" value="+1 000-000-0000" />
                         </div>
                         <div class="d-flex gap-2">
@@ -340,7 +342,7 @@
                         <div>
                             <p class="field-label">Address</p>
                             <p class="field-value" id="address-display">
-                                St 32 main downtown, Los Angeles, California, USA
+                                @Model.address
                             </p>
                             <input type="text" class="form-control d-none" id="address-input"
                                 value="St 32 main downtown, Los Angeles, California, USA" />
@@ -363,7 +365,7 @@
                     <div class="account-field d-flex justify-content-between mb-3" id="field-dob">
                         <div>
                             <p class="field-label">Date of birth</p>
-                            <p class="field-value" id="dob-display">01-01-1992</p>
+                            <p class="field-value" id="dob-display">@Model.dob</p>
                             <input type="date" class="form-control d-none" id="dob-input" value="1992-01-01" />
                         </div>
                         <div class="d-flex gap-2">

@@ -4,8 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ".dropdown-menu .dropdown-item"
     );
     const userMenu = document.getElementById("userMenu");
-
-
+    
     navLinks.forEach((link) => {
         link.addEventListener("click", function () {
             navLinks.forEach((l) => l.classList.remove("active"));
@@ -13,8 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
             userMenu.classList.remove("active");
         });
     });
-
-
+    
     dropdownItems.forEach((item) => {
         item.addEventListener("click", function () {
             dropdownItems.forEach((i) => i.classList.remove("active"));
