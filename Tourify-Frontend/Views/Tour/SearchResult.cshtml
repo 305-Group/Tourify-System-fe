@@ -1,5 +1,1041 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<!DOCTYPE html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tourify - Tour Listing</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+
+    <link rel="stylesheet" href="./css.css" />
+
+    <style>
+      body {
+        padding-top: 0;
+        background-color: #ecfffd;
+      }
+
+      .booking-form {
+        background: rgba(48, 132, 122, 0.804);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        width: 100%;
+        margin: 95px auto 40px auto;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .form-label {
+        color: #f8f9fa; /* Rất sáng */
+        font-weight: 500;
+      }
+
+      .nav-tabs .nav-link.active {
+        border: none;
+        border-bottom: 2px solid #20c997;
+        color: #20c997;
+        background-color: transparent;
+      }
+
+      .form-floating-custom {
+        position: relative;
+      }
+
+      .form-floating-custom .form-control,
+      .form-floating-custom .form-select {
+        padding-left: 2.5rem;
+      }
+
+      .form-floating-custom i {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        color: #20c997;
+      }
+
+      .form-floating-custom i {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        color: #20c997; /* Màu xanh như hình */
+        font-size: 1.2rem;
+      }
+
+      .search-btn {
+        background-color: #20c997;
+        border: none;
+        color: white;
+      }
+
+      .search-btn:hover {
+        background-color: #17b28c;
+      }
+
+      .tour-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: rgb(227, 235, 234);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 25px;
+      }
+
+      .tour-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      /* Title */
+      .tour-card .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3436;
+      }
+
+      /* Icon styles */
+      .tour-card i {
+        font-size: 0.9rem;
+        vertical-align: middle;
+      }
+
+      /* Price */
+      .tour-card .card-text.text-success {
+        color: rgb(205, 52, 6) !important;
+      }
+
+      /* Subscribe / View buttons */
+      .tour-card .btn-success {
+        background-color: #00b894;
+        border-color: #00b894;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .tour-card .btn-success:hover {
+        background-color: #019172;
+        border-color: #019172;
+        box-shadow: 0 0 8px rgba(0, 184, 148, 0.3);
+      }
+
+      /* Heart button */
+      .tour-card .btn-outline-success {
+        border: 2px solid #0a6e4d;
+        color: #0a6e4d;
+        transition: all 0.2s ease;
+      }
+
+      .tour-card .btn-outline-success:hover {
+        background-color: white;
+        border: 2px solid red;
+        color: red;
+        box-shadow: 0 0 10px rgba(0, 184, 148, 0.25);
+      }
+
+      /* Rounded & elegant */
+      .tour-card .btn {
+        border-radius: 50px;
+        font-size: 0.9rem;
+        padding: 6px 14px;
+      }
+
+      /* Image fix for 100% height */
+      .tour-card .object-fit-cover {
+        object-fit: cover;
+        height: 100%;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+      }
+
+      .tour-card a {
+        transition: color 0.2s ease;
+      }
+
+      .tour-card a:hover {
+        color: #00b894 !important;
+        text-decoration: underline;
+      }
+
+      .fixed-tour-thumbnail {
+        width: 400px;
+        height: 210px;
+        object-fit: cover;
+        border-radius: 16px 0 0 16px; /* Bo góc bên trái */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: block;
+        background-color: #f0f0f0; /* fallback nếu ảnh chưa load */
+        image-rendering: auto; /* trình duyệt tự tối ưu */
+      }
+
+      /* Hover hiệu ứng nhẹ */
+      .fixed-tour-thumbnail:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+      }
+      
+
+      .filter-box {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 8px 8px #023b306d;
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        color: #2d3436;
+        backdrop-filter: blur(8px);
+        animation: filterPop 0.5s ease;
+      }
+
+      /* Section title */
+      .filter-box h5 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #00b894;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Range input */
+      .filter-box input[type="range"] {
+        width: 100%;
+        accent-color: #00b894;
+        transition: filter 0.3s ease;
+        -webkit-appearance: none;
+        height: 8px; /* cao hơn mặc định */
+        height: 8px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        background: #e0f2f1;
+        border-radius: 10px;
+        outline: none;
+        transition: background 0.3s;
+        accent-color: #00b894; /* tone xanh hiện đại */
+      }
+
+      .filter-box input[type="range"]::-webkit-slider-thumb {
+        margin-top: -6px; /* giúp thumb tròn căn giữa thanh */
+        -webkit-appearance: none;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #00b894;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 0 4px rgba(0, 184, 148, 0.4);
+        transition: all 0.3s ease;
+      }
+
+      /* Rating buttons */
+      .filter-box .btn-outline-secondary {
+        border-color: #00b894;
+        color: #00b894;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .filter-box .btn-outline-secondary:hover {
+        background-color: #00b894;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(0, 184, 148, 0.2);
+      }
+
+      /* Checkbox section */
+      .filter-box .form-check-input {
+        accent-color: #00b894;
+        transform: scale(1.1);
+        transition: all 0.2s ease;
+      }
+
+      .filter-box .form-check-label {
+        color: #2d3436;
+        font-weight: 500;
+      }
+
+      .filter-box input[type="range"]::-moz-range-thumb {
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #00b894;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 0 4px rgba(0, 184, 148, 0.4);
+      }
+
+      .form-check-input,
+      .form-check-label {
+        cursor: pointer;
+      }
+
+      .form-check-input:checked {
+        background-color: #00b894;
+        border-color: #00b894;
+        box-shadow: 0 0 0 0.15rem rgba(0, 184, 148, 0.25);
+      }
+
+      .rating-btn {
+        border: 2px solid #00b894;
+        color: #00b894;
+        background-color: transparent;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .rating-btn:hover {
+        background-color: #00b894;
+        color: white;
+      }
+
+      .rating-btn.active {
+        background-color: #00b894;
+        color: white;
+        box-shadow: 0 2px 10px rgba(0, 184, 148, 0.2);
+      }
+      
+
+      .btn-modern {
+        background: linear-gradient(135deg, #00bfa5, #00796b);
+        color: #fff;
+        padding: 12px 28px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        border-radius: 50px;
+        box-shadow: 0 6px 14px rgba(0, 191, 165, 0.25);
+        transition: all 0.3s ease;
+      }
+
+      .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 191, 165, 0.35);
+        background: linear-gradient(135deg, #009e8e, #00695c);
+      }
+
+      .btn-modern:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 191, 165, 0.3);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    @* <nav *@
+    @*   class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm" *@
+    @* > *@
+    @*   <div class="container"> *@
+    @*     <a class="navbar-brand" href="#"> *@
+    @*       <img *@
+    @*         src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600" *@
+    @*         height="40" *@
+    @*         alt="Tourify" *@
+    @*       /> *@
+    @*     </a> *@
+    @*     <button *@
+    @*       class="navbar-toggler" *@
+    @*       type="button" *@
+    @*       data-bs-toggle="collapse" *@
+    @*       data-bs-target="#mainNavbar" *@
+    @*       aria-controls="mainNavbar" *@
+    @*       aria-expanded="false" *@
+    @*       aria-label="Toggle navigation" *@
+    @*     > *@
+    @*       <span class="navbar-toggler-icon"></span> *@
+    @*     </button> *@
+    @*     <div class="collapse navbar-collapse" id="mainNavbar"> *@
+    @*       <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu"> *@
+    @*         <li class="nav-item"> *@
+    @*           <a class="nav-link nav-custom active" href="#home"> *@
+    @*             <i class="fas fa-house me-2"></i>Home *@
+    @*           </a> *@
+    @*         </li> *@
+    @*         <li class="nav-item"> *@
+    @*           <a class="nav-link nav-custom" href="#detail"> *@
+    @*             <i class="fas fa-info-circle me-2"></i>Detail *@
+    @*           </a> *@
+    @*         </li> *@
+    @*       </ul> *@
+    @* *@
+    @*       <div class="d-flex align-items-center gap-3"> *@
+    @*         <div class="dropdown"> *@
+    @*           <button *@
+    @*             class="btn dropdown-toggle text-white d-flex align-items-center nav-custom" *@
+    @*             type="button" *@
+    @*             id="userMenu" *@
+    @*             data-bs-toggle="dropdown" *@
+    @*             aria-expanded="false" *@
+    @*           > *@
+    @*             <img *@
+    @*               src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600" *@
+    @*               th:src="@{${#authentication.principal.avatarUrl}}" *@
+    @*               alt="Avatar" *@
+    @*               class="rounded-circle me-2" *@
+    @*               width="32" *@
+    @*               height="32" *@
+    @*             /> *@
+    @*             <span *@
+    @*               >Hello, *@
+    @*               <span th:text="${#authentication.name}">User</span></span *@
+    @*             > *@
+    @*           </button> *@
+    @*           <ul *@
+    @*             class="dropdown-menu dropdown-menu-end" *@
+    @*             aria-labelledby="userMenu" *@
+    @*           > *@
+    @*             <li> *@
+    @*               <a class="dropdown-item" href="#" id="profile-view" *@
+    @*                 ><i class="fas fa-user-circle me-2"></i>View profile</a *@
+    @*               > *@
+    @*             </li> *@
+    @*             <li> *@
+    @*               <a class="dropdown-item" href="#" id="profile-edit" *@
+    @*                 ><i class="fas fa-edit me-2"></i>Edit profile</a *@
+    @*               > *@
+    @*             </li> *@
+    @*           </ul> *@
+    @*         </div> *@
+    @*         <form th:action="@{/logout}" method="post"> *@
+    @*           <button type="submit" class="btn btn-outline-light btn-sm px-3"> *@
+    @*             <i class="fas fa-sign-out-alt me-1"></i>Logout *@
+    @*           </button> *@
+    @*         </form> *@
+    @*       </div> *@
+    @*     </div> *@
+    @*   </div> *@
+    @* </nav> *@
+
+    <!-- Main Content -->
+    <div class="container py-3">
+      <!-- Modern Tour Search Form -->
+      <div class="booking-form">
+        <form class="row g-3 align-items-end">
+          <!-- Where -->
+          <div class="col-md-3">
+            <label class="form-label">Where</label>
+            <div class="form-floating-custom position-relative">
+              <i class="bi bi-geo-alt-fill"></i>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter destination"
+                value="Da Nang City"
+              />
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="col-md-2">
+            <label class="form-label">Duration</label>
+            <div class="form-floating-custom">
+              <i class="bi bi-clock"></i>
+              <select class="form-select">
+                <option>01 Day</option>
+                <option selected>03 Day</option>
+                <option>05 Day</option>
+                <option>07 Day</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="col-md-3">
+            <label class="form-label">Type</label>
+            <div class="form-floating-custom">
+              <i class="bi bi-globe-americas"></i>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter type"
+                value="Adventure"
+              />
+            </div>
+          </div>
+
+          <!-- People -->
+          <div class="col-md-2">
+            <label class="form-label">People</label>
+            <div class="form-floating-custom">
+              <i class="bi bi-people-fill"></i>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter number"
+                value="3 people"
+              />
+            </div>
+          </div>
+
+          <!-- Search Button -->
+          <div class="col-md-2 d-grid">
+            <button type="submit" class="btn search-btn">
+              <i class="bi bi-search"></i> Search
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filters + Tour List -->
+      <div class="row">
+        <!-- Filters -->
+        <div class="col-md-3">
+          <div class="filter-box mb-4">
+            <h5>Filters</h5>
+            <div class="mb-3">
+              <label for="priceRange"
+                >Price:
+                <span id="priceValue" class="fw-bold text-success"
+                  >$100</span
+                ></label
+              >
+              <input
+                type="range"
+                class="form-range"
+                id="priceRange"
+                min="100"
+                max="800"
+                step="10"
+                value="100"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="durationRange"
+                >Duration:
+                <span id="durationValue" class="fw-bold text-success"
+                  >3 days</span
+                >
+              </label>
+              <input
+                type="range"
+                class="form-range"
+                id="durationRange"
+                min="3"
+                max="30"
+                step="1"
+                value="3"
+              />
+            </div>
+
+            <label>Rating</label>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm rating-btn" data-value="1">1★</button>
+              <button class="btn btn-sm rating-btn" data-value="2">2★</button>
+              <button class="btn btn-sm rating-btn" data-value="3">3★</button>
+              <button class="btn btn-sm rating-btn" data-value="4">4★</button>
+              <button class="btn btn-sm rating-btn" data-value="5">5★</button>
+            </div>
+
+            <label class="mt-3">Company</label>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="emeral" />
+              <label class="form-check-label" for="emeral">Emerald</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="tiny" />
+              <label class="form-check-label" for="tiny">Tiny Pearl</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="crux" />
+              <label class="form-check-label" for="crux">Crux</label>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button class="btn btn-modern" id="applyFilterBtn">
+                <i class="fas fa-filter me-2"></i> Apply Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tour Results -->
+        <div class="col-md-9">
+          <!-- Tour Cards -->
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="card tour-card shadow-sm border-0 rounded-4">
+                <div class="row g-0">
+                  <!-- Image Section -->
+                  <div class="col-md-4">
+                    <img
+                      src="https://images.pexels.com/photos/586687/pexels-photo-586687.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                      class="img-fluid fixed-tour-thumbnail"
+                      alt="Tour Thumbnail"
+                    />
+                  </div>
+
+                  <!-- Info Section -->
+                  <div class="col-md-8">
+                    <div
+                      class="card-body d-flex flex-column justify-content-between h-100"
+                    >
+                      <div>
+                        <h5 class="card-title fw-bold text-dark mb-2">
+                          Da Nang City Discovery Tour
+                        </h5>
+
+                        <!-- Location & Category -->
+                        <div class="mb-2 text-muted small">
+                          <i class="fas fa-location-dot me-1 text-success"></i>
+                          Da Nang City
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-tag me-1 text-success"></i> Adventure
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-calendar-alt me-1 text-success"></i>
+                          3 days
+                        </div>
+
+                        <!-- Tour Company & Subscribe -->
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <div class="text-muted small">
+                            <i
+                              class="fas fa-user-tie me-1"
+                              style="color: #0a6e4d"
+                            ></i>
+                            Tour by:
+                            <a
+                              href="/company/emerald-travel"
+                              class="fw-semibold text-decoration-none"
+                              style="color: #0a6e4d"
+                            >
+                              Emerald Travel
+                            </a>
+                          </div>
+                        </div>
+
+                        <!-- Price -->
+                        <p class="card-text text-success fw-bold fs-5 mt-2">
+                          $240.00
+                        </p>
+                      </div>
+
+                      <!-- Action buttons -->
+                      <div
+                        class="d-flex justify-content-between align-items-center mt-3"
+                      >
+                        <button
+                          class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
+                        >
+                          <i class="fas fa-plus"></i>
+                          Add to Favorites
+                        </button>
+
+                        <button class="btn btn-success px-4 rounded-pill">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tour Cards -->
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="card tour-card shadow-sm border-0 rounded-4">
+                <div class="row g-0">
+                  <!-- Image Section -->
+                  <div class="col-md-4">
+                    <img
+                      src="https://images.pexels.com/photos/586687/pexels-photo-586687.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                      class="img-fluid fixed-tour-thumbnail"
+                      alt="Tour Thumbnail"
+                    />
+                  </div>
+
+                  <!-- Info Section -->
+                  <div class="col-md-8">
+                    <div
+                      class="card-body d-flex flex-column justify-content-between h-100"
+                    >
+                      <div>
+                        <h5 class="card-title fw-bold text-dark mb-2">
+                          Da Nang City Discovery Tour
+                        </h5>
+
+                        <!-- Location & Category -->
+                        <div class="mb-2 text-muted small">
+                          <i class="fas fa-location-dot me-1 text-success"></i>
+                          Da Nang City
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-tag me-1 text-success"></i> Adventure
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-calendar-alt me-1 text-success"></i>
+                          3 days
+                        </div>
+
+                        <!-- Tour Company & Subscribe -->
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <div class="text-muted small">
+                            <i
+                              class="fas fa-user-tie me-1"
+                              style="color: #0a6e4d"
+                            ></i>
+                            Tour by:
+                            <a
+                              href="/company/emerald-travel"
+                              class="fw-semibold text-decoration-none"
+                              style="color: #0a6e4d"
+                            >
+                              Emerald Travel
+                            </a>
+                          </div>
+                        </div>
+
+                        <!-- Price -->
+                        <p class="card-text text-success fw-bold fs-5 mt-2">
+                          $240.00
+                        </p>
+                      </div>
+
+                      <!-- Action buttons -->
+                      <div
+                        class="d-flex justify-content-between align-items-center mt-3"
+                      >
+                        <button
+                          class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
+                        >
+                          <i class="fas fa-plus"></i>
+                          Add to Favorites
+                        </button>
+
+                        <button class="btn btn-success px-4 rounded-pill">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tour Cards -->
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="card tour-card shadow-sm border-0 rounded-4">
+                <div class="row g-0">
+                  <!-- Image Section -->
+                  <div class="col-md-4">
+                    <img
+                      src="https://images.pexels.com/photos/586687/pexels-photo-586687.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                      class="img-fluid fixed-tour-thumbnail"
+                      alt="Tour Thumbnail"
+                    />
+                  </div>
+
+                  <!-- Info Section -->
+                  <div class="col-md-8">
+                    <div
+                      class="card-body d-flex flex-column justify-content-between h-100"
+                    >
+                      <div>
+                        <h5 class="card-title fw-bold text-dark mb-2">
+                          Da Nang City Discovery Tour
+                        </h5>
+
+                        <!-- Location & Category -->
+                        <div class="mb-2 text-muted small">
+                          <i class="fas fa-location-dot me-1 text-success"></i>
+                          Da Nang City
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-tag me-1 text-success"></i> Adventure
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-calendar-alt me-1 text-success"></i>
+                          3 days
+                        </div>
+
+                        <!-- Tour Company & Subscribe -->
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <div class="text-muted small">
+                            <i
+                              class="fas fa-user-tie me-1"
+                              style="color: #0a6e4d"
+                            ></i>
+                            Tour by:
+                            <a
+                              href="/company/emerald-travel"
+                              class="fw-semibold text-decoration-none"
+                              style="color: #0a6e4d"
+                            >
+                              Emerald Travel
+                            </a>
+                          </div>
+                        </div>
+
+                        <!-- Price -->
+                        <p class="card-text text-success fw-bold fs-5 mt-2">
+                          $240.00
+                        </p>
+                      </div>
+
+                      <!-- Action buttons -->
+                      <div
+                        class="d-flex justify-content-between align-items-center mt-3"
+                      >
+                        <button
+                          class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
+                        >
+                          <i class="fas fa-plus"></i>
+                          Add to Favorites
+                        </button>
+
+                        <button class="btn btn-success px-4 rounded-pill">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tour Cards -->
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="card tour-card shadow-sm border-0 rounded-4">
+                <div class="row g-0">
+                  <!-- Image Section -->
+                  <div class="col-md-4">
+                    <img
+                      src="https://images.pexels.com/photos/586687/pexels-photo-586687.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                      class="img-fluid fixed-tour-thumbnail"
+                      alt="Tour Thumbnail"
+                    />
+                  </div>
+
+                  <!-- Info Section -->
+                  <div class="col-md-8">
+                    <div
+                      class="card-body d-flex flex-column justify-content-between h-100"
+                    >
+                      <div>
+                        <h5 class="card-title fw-bold text-dark mb-2">
+                          Da Nang City Discovery Tour
+                        </h5>
+
+                        <!-- Location & Category -->
+                        <div class="mb-2 text-muted small">
+                          <i class="fas fa-location-dot me-1 text-success"></i>
+                          Da Nang City
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-tag me-1 text-success"></i> Adventure
+                          <span class="mx-2">|</span>
+                          <i class="fas fa-calendar-alt me-1 text-success"></i>
+                          3 days
+                        </div>
+
+                        <!-- Tour Company & Subscribe -->
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <div class="text-muted small">
+                            <i
+                              class="fas fa-user-tie me-1"
+                              style="color: #0a6e4d"
+                            ></i>
+                            Tour by:
+                            <a
+                              href="/company/emerald-travel"
+                              class="fw-semibold text-decoration-none"
+                              style="color: #0a6e4d"
+                            >
+                              Emerald Travel
+                            </a>
+                          </div>
+                        </div>
+
+                        <!-- Price -->
+                        <p class="card-text text-success fw-bold fs-5 mt-2">
+                          $240.00
+                        </p>
+                      </div>
+
+                      <!-- Action buttons -->
+                      <div
+                        class="d-flex justify-content-between align-items-center mt-3"
+                      >
+                        <button
+                          class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
+                        >
+                          <i class="fas fa-plus"></i>
+                          Add to Favorites
+                        </button>
+
+                        <button class="btn btn-success px-4 rounded-pill">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <button class="btn btn-modern">Show more results</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter Section -->
+      <div class="newsletter-section">
+        <div class="newsletter-content">
+          <h3 class="newsletter-title">Subscribe Newsletter</h3>
+          <p class="newsletter-subtitle">
+            The Travel<br />Get inspired! Receive travel discounts, tips and
+            behind the scenes stories.
+          </p>
+          <div class="newsletter-form">
+            <input
+              type="email"
+              class="newsletter-input"
+              placeholder="Your email address"
+            />
+            <button class="newsletter-btn">Subscribe</button>
+          </div>
+        </div>
+        <img
+          src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt="Newsletter"
+          class="newsletter-image"
+        />
+      </div>
+    </div>
+
+    @* <!-- Footer --> *@
+    @* <footer class="footer mt-5"> *@
+    @*   <div class="container"> *@
+    @*     <div class="row"> *@
+    @*       <div class="col-md-3"> *@
+    @*         <h5 class="footer-title">g-lobe</h5> *@
+    @*         <div class="social-icons"> *@
+    @*           <a href="#" class="social-icon facebook" *@
+    @*             ><i class="fab fa-facebook"></i *@
+    @*           ></a> *@
+    @*           <a href="#" class="social-icon twitter" *@
+    @*             ><i class="fab fa-twitter"></i *@
+    @*           ></a> *@
+    @*           <a href="#" class="social-icon youtube" *@
+    @*             ><i class="fab fa-youtube"></i *@
+    @*           ></a> *@
+    @*           <a href="#" class="social-icon instagram" *@
+    @*             ><i class="fab fa-instagram"></i *@
+    @*           ></a> *@
+    @*         </div> *@
+    @*       </div> *@
+    @*       <div class="col-md-2"> *@
+    @*         <h5 class="footer-title">Our Destinations</h5> *@
+    @*         <ul class="footer-links"> *@
+    @*           <li><a href="#">Canada</a></li> *@
+    @*           <li><a href="#">Alaska</a></li> *@
+    @*           <li><a href="#">France</a></li> *@
+    @*           <li><a href="#">Iceland</a></li> *@
+    @*         </ul> *@
+    @*       </div> *@
+    @*       <div class="col-md-2"> *@
+    @*         <h5 class="footer-title">Our Activities</h5> *@
+    @*         <ul class="footer-links"> *@
+    @*           <li><a href="#">Northern Lights</a></li> *@
+    @*           <li><a href="#">Cruising & sailing</a></li> *@
+    @*           <li><a href="#">Multi-activities</a></li> *@
+    @*           <li><a href="#">Kayaking</a></li> *@
+    @*         </ul> *@
+    @*       </div> *@
+    @*       <div class="col-md-2"> *@
+    @*         <h5 class="footer-title">Travel Blogs</h5> *@
+    @*         <ul class="footer-links"> *@
+    @*           <li><a href="#">Bali Travel Guide</a></li> *@
+    @*           <li><a href="#">Sri Lanka Travel Guide</a></li> *@
+    @*           <li><a href="#">Peru Travel Guide</a></li> *@
+    @*           <li><a href="#">Bali Travel Guide</a></li> *@
+    @*         </ul> *@
+    @*       </div> *@
+    @*       <div class="col-md-3"> *@
+    @*         <h5 class="footer-title">About Us</h5> *@
+    @*         <ul class="footer-links"> *@
+    @*           <li><a href="#">Our Story</a></li> *@
+    @*           <li><a href="#">Work with us</a></li> *@
+    @*         </ul> *@
+    @*         <h5 class="footer-title mt-3">Contact Us</h5> *@
+    @*         <ul class="footer-links"> *@
+    @*           <li><a href="#">Our Story</a></li> *@
+    @*           <li><a href="#">Work with us</a></li> *@
+    @*         </ul> *@
+    @*       </div> *@
+    @*     </div> *@
+    @*   </div> *@
+    @* </footer> *@
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const priceInput = document.getElementById("priceRange");
+      const priceValue = document.getElementById("priceValue");
+      const durationInput = document.getElementById("durationRange");
+      const durationValue = document.getElementById("durationValue");
+
+      priceInput.addEventListener("input", () => {
+        priceValue.textContent = `$${priceInput.value}`;
+      });
+
+      durationInput.addEventListener("input", () => {
+        durationValue.textContent = `${durationInput.value} days`;
+      });
+
+      document
+        .getElementById("applyFilterBtn")
+        .addEventListener("click", () => {
+          const price = priceInput.value;
+          const duration = durationInput.value;
+          console.log(
+            `Filter applied: Price = ${price}, Duration = ${duration}`
+          );
+          // Place your filtering logic here
+        });
+    </script>
+
+    <script>
+      const ratingButtons = document.querySelectorAll(".rating-btn");
+
+      ratingButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          ratingButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+    </script>
+
+    <script src="./js.js"></script>
+  </body>
+
