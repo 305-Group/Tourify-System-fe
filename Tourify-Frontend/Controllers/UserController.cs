@@ -1,6 +1,8 @@
+
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+
 
 namespace Tourify_Frontend.Controllers
 {
@@ -51,6 +53,7 @@ namespace Tourify_Frontend.Controllers
             var userData = JsonConvert.DeserializeObject<dynamic>(content);
 
             return View(userData);
+
         }
     }
 }

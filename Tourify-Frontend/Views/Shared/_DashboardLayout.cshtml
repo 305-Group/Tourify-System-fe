@@ -1,0 +1,210 @@
+﻿@* Views/Shared/_DashboardLayout.cshtml *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – Dashlab Admin Panel</title>
+
+    <!-- Bootstrap, FontAwesome, Select2, Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+    @* Nếu có CSS riêng, reference ở đây *@
+    <link href="~/css/dashboard.css" rel="stylesheet" />
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    @* ===== Sidebar ===== *@
+    <div class="sidebar d-flex flex-column p-3">
+        <h4 class="text-center fw-bold mb-4">Dashlab</h4>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a class="nav-link" onclick="loadPage('dashboard')">
+                    <i class="fas fa-th-large me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex justify-content-between align-items-center"
+                   data-bs-toggle="collapse" data-bs-target="#tourSubmenu"
+                   role="button" aria-expanded="false" aria-controls="tourSubmenu"
+                   id="tourToggle">
+                    <span><i class="fas fa-suitcase me-2"></i> Tour</span>
+                    <i class="fas fa-chevron-down small toggle-icon"></i>
+                </a>
+                <div class="collapse" id="tourSubmenu">
+                    <ul class="nav flex-column ms-3">
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="loadPage('tourList')">
+                                <i class="fas fa-list me-2"></i> Tour List
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="loadPage('addTour')">
+                                <i class="fas fa-plus me-2"></i> Add Tour
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="loadPage('categories')">
+                    <i class="fas fa-th-list me-2"></i> Categories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex justify-content-between align-items-center" onclick="loadPage('booking')">
+                    <span><i class="fas fa-calendar-alt me-2"></i> Booking</span>
+                    <span class="badge bg-danger rounded-pill">2</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="loadPage('customers')">
+                    <i class="fas fa-users me-2"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="loadPage('seller')">
+                    <i class="fas fa-store me-2"></i> Seller
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="loadPage('analytics')">
+                    <i class="fas fa-chart-line me-2"></i> Analytics
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    @* ===== Topbar ===== *@
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                <i class="fas fa-bell fa-lg"></i><span>3</span>
+            </button>
+            <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#messageModal">
+                <i class="fas fa-envelope fa-lg"></i><span>64</span>
+            </button>
+        </div>
+        <div class="d-flex align-items-center">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg"
+                 class="rounded-circle me-2" width="32" height="32" />
+            <span class="fw-semibold">Vu NH.</span>
+        </div>
+    </div>
+
+    @* ===== Modals (Notifications + Messages + Media) ===== *@
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow rounded-4 border-0">
+                <div class="modal-header bg-success text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-bell-fill me-2"></i>Notifications
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <p class="text-muted mb-3">You have <strong>3 new notifications</strong>:</p>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+                            <span><i class="bi bi-check-circle-fill text-success me-2"></i>New booking received</span>
+                            <span class="badge bg-light text-success">Just now</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+                            <span><i class="bi bi-pencil-square text-primary me-2"></i>Tour updated</span>
+                            <span class="badge bg-light text-primary">5 mins ago</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+                            <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>System maintenance scheduled</span>
+                            <span class="badge bg-light text-warning">Tomorrow</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-success">View All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-envelope-fill me-2"></i>Messages
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <p class="text-muted mb-3">📬 You have <strong>64 unread messages</strong>:</p>
+                    <div class="list-group rounded-3 overflow-auto" style="max-height: 350px">
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
+                            <div class="me-3">
+                                <span class="fw-bold text-dark">Customer A</span>
+                                <div class="small text-muted">Is this tour available?</div>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">New</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
+                            <div class="me-3">
+                                <span class="fw-bold text-dark">Customer B</span>
+                                <div class="small text-muted">Need invoice...</div>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">New</span>
+                        </a>
+                        <div class="list-group-item text-center text-muted small">...</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Dismiss</button>
+                    <button class="btn btn-primary">Go to Inbox</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media Modal -->
+    <div class="modal fade" id="mediaModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mediaModalLabel">Add Media</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Media URL</label>
+                    <input type="text" class="form-control mb-3" id="mediaUrlInput"
+                           placeholder="https://example.com/media.jpg or .mp4" />
+                    <div class="text-center my-2">or</div>
+                    <label class="form-label">Upload File</label>
+                    <input type="file" class="form-control" id="mediaFileInput" accept="image/*,video/*" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success" onclick="addMedia()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ===== Nội dung page sẽ render ở đây ===== *@
+    <div class="main" id="mainContent">
+        @RenderBody()
+    </div>
+
+    @* ===== Scripts CDN + custom ===== *@
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="~/js/dashboard.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
