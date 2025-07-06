@@ -36,6 +36,27 @@ namespace Tourify_Frontend.Controllers
             {
                 return RedirectToAction("Index", "Tour");
             }
+            
+            // Kiểm tra nếu có code từ Google OAuth callback
+            var code = Request.Query["code"].ToString();
+            if (!string.IsNullOrEmpty(code))
+            {
+                // Log để debug
+                _logger.LogInformation($"Google OAuth callback received with code: {code}");
+                
+                // Lưu code vào cookie với tên nhất quán
+                Response.Cookies.Append("AuthToken", code, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.Now.AddDays(7)
+                });
+                
+                _logger.LogInformation("Google code saved to AuthToken cookie, redirecting to Tour/Index");
+                return RedirectToAction("Index", "Tour");
+            }
+            
             return View();
         }
 
@@ -48,6 +69,8 @@ namespace Tourify_Frontend.Controllers
             {
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin." });
                     ViewData["ErrorMessage"] = "Vui lòng nhập đầy đủ thông tin.";
                     return View();
                 }
@@ -74,10 +97,8 @@ namespace Tourify_Frontend.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent);
-                    _logger.LogInformation($"Deserialized token: {loginResponse?.token}");
                     if (!string.IsNullOrEmpty(loginResponse?.token))
                     {
-                        // Lưu token vào cookie
                         Response.Cookies.Append("AuthToken", loginResponse.token, new CookieOptions
                         {
                             HttpOnly = true,
@@ -86,16 +107,24 @@ namespace Tourify_Frontend.Controllers
                             Expires = DateTime.Now.AddDays(7)
                         });
 
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                            return Json(new { success = true });
+
                         return RedirectToAction("Index", "Tour");
                     }
                 }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không đúng." });
 
                 ViewData["ErrorMessage"] = "Tên đăng nhập hoặc mật khẩu không đúng.";
                 return View();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Login error: {ex.Message}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Có lỗi xảy ra. Vui lòng thử lại sau." });
+
                 ViewData["ErrorMessage"] = "Có lỗi xảy ra. Vui lòng thử lại sau.";
                 return View();
             }
@@ -153,39 +182,36 @@ namespace Tourify_Frontend.Controllers
             {
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = "Vui lòng điền đầy đủ thông tin." });
                     ViewData["ErrorMessage"] = "Vui lòng điền đầy đủ thông tin.";
                     return View();
                 }
 
                 var baseUrl = _configuration["ApiSettings:BaseUrl"];
-
-                // Check if email already exists
                 var checkEmailUrl = $"{baseUrl}/User";
                 var checkEmailResponse = await _httpClient.GetAsync(checkEmailUrl);
 
                 if (checkEmailResponse.IsSuccessStatusCode)
                 {
                     var usersJson = await checkEmailResponse.Content.ReadAsStringAsync();
-                    
                     try
                     {
-                        // Parse JSON và lấy danh sách email
                         var jsonDocument = JsonDocument.Parse(usersJson);
                         var emailList = new List<string>();
-                        
                         foreach (var user in jsonDocument.RootElement.EnumerateArray())
                         {
-                            if (user.TryGetProperty("email", out var emailElement) && 
-                                emailElement.ValueKind != JsonValueKind.Null && 
+                            if (user.TryGetProperty("email", out var emailElement) &&
+                                emailElement.ValueKind != JsonValueKind.Null &&
                                 !string.IsNullOrEmpty(emailElement.GetString()))
                             {
                                 emailList.Add(emailElement.GetString().ToLower());
                             }
                         }
-
-                        // Kiểm tra email nhập vào có trong mảng không
                         if (emailList.Contains(email.ToLower()))
                         {
+                            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                                return Json(new { success = false, message = "Email này đã được sử dụng. Vui lòng sử dụng email khác." });
                             ViewData["ErrorMessage"] = "Email này đã được sử dụng. Vui lòng sử dụng email khác.";
                             return View();
                         }
@@ -197,9 +223,8 @@ namespace Tourify_Frontend.Controllers
                 }
 
                 var registerUrl = $"{baseUrl}/auth/register";
-
                 var userData = new
-                {   
+                {
                     email = email,
                     password = password,
                     username = name
@@ -215,22 +240,24 @@ namespace Tourify_Frontend.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Lưu email vào TempData để sử dụng ở bước verify OTP
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = true });
+
                     TempData["VerifyEmail"] = email;
-                    // Chuyển hướng đến trang verify OTP
                     return RedirectToAction("VerifyOTP");
                 }
                 else
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError($"Registration failed: {errorContent}");
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = "Đăng ký thất bại. Vui lòng thử lại sau." });
                     ViewData["ErrorMessage"] = "Đăng ký thất bại. Vui lòng thử lại sau.";
                     return View();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error during registration: {ex.Message}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Có lỗi xảy ra. Vui lòng thử lại sau." });
                 ViewData["ErrorMessage"] = "Có lỗi xảy ra. Vui lòng thử lại sau.";
                 return View();
             }
@@ -316,6 +343,18 @@ namespace Tourify_Frontend.Controllers
         {
             Response.Cookies.Delete("AuthToken");
             return RedirectToAction("Login");
+        }
+
+        [HttpGet("google-callback")]
+        public IActionResult GoogleCallback([FromQuery] string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            
+            // Redirect to login page with the code parameter
+            return RedirectToAction("Login", "Account", new { code = code });
         }
     }
 

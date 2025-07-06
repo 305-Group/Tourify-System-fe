@@ -16,6 +16,7 @@
     <link href="~/css/login.css" rel="stylesheet" />
 </head>
 <body>
+<div id="error-message" class="text-danger mb-3"></div>
     <div class="wave-container" aria-hidden="true">
         <div class="wave"></div>
         <div class="wave"></div>
@@ -36,7 +37,7 @@
             </div>
 
 
-            <form action="/login" method="post">
+            <form id="login-form" action="/login" method="post">
                 <div class="form-floating mb-4">
                     <input type="email"
                            name="email"
@@ -80,7 +81,7 @@
 
 
                 <div class="text-center mb-4">
-                    Don’t have an account?
+                    Don't have an account?
                     <a href="./register" class="text-danger text-decoration-none">Sign up</a>
                 </div>
 
@@ -91,7 +92,7 @@
                     <button type="button" class="btn social-btn facebook">
                         <i class="fab fa-facebook-f me-2"></i>Facebook
                     </button>
-                    <button type="button" class="btn social-btn google">
+                    <button type="button" class="btn social-btn google" id="google-login-btn">
                         <i class="fab fa-google me-2"></i>Google
                     </button>
                 </div>
@@ -101,6 +102,28 @@
 
 
     <script src="~/js/Login.js"></script>
+    <script src="~/js/google-login.js"></script>
+    <script>
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const res = await fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+    });
+    const data = await res.json();
+    if (data.success) {
+        window.location.href = '/Tour/Index';
+    } else {
+        document.getElementById('error-message').innerText = data.message;
+    }
+});
+</script>
 </body>
 </html>
 

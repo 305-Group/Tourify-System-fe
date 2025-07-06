@@ -16,6 +16,7 @@
     <link href="~/css/register.css" rel="stylesheet" />
 </head>
 <body>
+<div id="error-message" class="text-danger mb-3"></div>
     @* Toàn bộ nội dung HTML bạn đã dán ở Bước 2.2 sẽ ở đây *@
     <div class="wave-container" aria-hidden="true">
         <div class="wave"></div>
@@ -104,5 +105,27 @@
     </div>
     @* Liên kết đến JavaScript tùy chỉnh của bạn *@
     <script src="~/js/register.js"></script>
+    <script>
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const res = await fetch('/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+    });
+    const data = await res.json();
+    if (data.success) {
+        window.location.href = '/verify-otp';
+    } else {
+        document.getElementById('error-message').innerText = data.message;
+    }
+});
+</script>
 </body>
 </html>
